@@ -1,0 +1,51 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId String   @unique
+  senderId      String
+  receiverId    String
+  applianceId   String?  @db.ObjectId
+  createdAt     DateTime @default(now())
+}
+
+model Balance {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String       @unique
+  creditBalance Float        @default(0.0)
+  energyBalance Float        @default(0.0)
+  appliances    Appliance[]
+  isBank        Boolean      @default(false) // If true, identifies as bank
+}
+
+model Appliance {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  name          String
+  isOn          Boolean  @default(false)
+  energyBalance Float    @default(0.0)
+  balanceId     String   @db.ObjectId
+  Balance       Balance  @relation(fields: [balanceId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float    // Cost in credits
+  inStock     Int
+  category    String   // Category of the product
+  brand       String   // Brand of the product
+  ratings     Float    // Average ratings
+  reviews     Int      // Number of reviews
+  imageUrl    String   // URL to the product image
+  createdAt   DateTime @default(now())
+}
