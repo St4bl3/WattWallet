@@ -11,11 +11,26 @@ import BuyCreditsForm from "./components_user/BuyCreditsForm";
 import Appliances from "./components_user/Appliances";
 import Navbaruser from "./components_user/Navbar-user";
 import { Footeruser } from "./components_user/footer-user";
+import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 
 interface Balance {
   creditBalance: number;
   energyBalance: number;
 }
+const words = [
+  {
+    text: "Welcome",
+    className: "text-8xl", // Added class for larger font size
+  },
+  {
+    text: "to",
+    className: "text-8xl", // Added class for larger font size
+  },
+  {
+    text: "WattWallet.",
+    className: "text-8xl text-blue-500 dark:text-blue-500", // Added class for larger font size
+  },
+];
 
 const MainPage: React.FC = () => {
   const { isSignedIn, user } = useUser();
@@ -96,7 +111,7 @@ const MainPage: React.FC = () => {
     <>
       <Navbaruser />
       <div className="flex flex-col items-center justify-center min-h-screen pt-24 bg-white text-black px-4">
-        <h1 className="text-5xl font-bold mb-8">Welcome to WattWallet</h1>
+        <TypewriterEffectSmooth words={words} />
         <div className="flex space-x-6">
           <button
             className="w-48 h-20 bg-black text-white text-xl rounded-lg hover:bg-gray-800 transition"

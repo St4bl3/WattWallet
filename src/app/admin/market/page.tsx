@@ -6,6 +6,11 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import Modal from "react-modal";
 import { Navbaradmin } from "../components_admin/Navbaradmin";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie } from "react-chartjs-2";
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface Product {
   id: string;
@@ -20,8 +25,23 @@ interface Product {
   imageUrl: string;
 }
 
+interface SalesData {
+  productId: string;
+  productName: string;
+  salesCount: number;
+}
+
+interface SalesPrediction {
+  id: string;
+  productId: string;
+  productName: string;
+  predictedSales: number;
+}
+
 const ProductManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [actualSales, setActualSales] = useState<SalesData[]>([]);
+  const [predictedSales, setPredictedSales] = useState<SalesPrediction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -43,19 +63,27 @@ const ProductManagement: React.FC = () => {
     imageUrl: "",
   });
 
-  // Fetch all products
-  const fetchProducts = async () => {
+  // Fetch all products, actual sales, and predicted sales
+  const fetchData = async () => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await axios.get<Product[]>("/api/admin/products");
-      setProducts(response.data);
+      const [productsResponse, actualSalesResponse, predictedSalesResponse] =
+        await Promise.all([
+          axios.get<Product[]>("/api/admin/products"),
+          axios.get<SalesData[]>("/api/admin/products/actual-sales"),
+          axios.get<SalesPrediction[]>("/api/admin/products/predicted-sales"),
+        ]);
+
+      setProducts(productsResponse.data);
+      setActualSales(actualSalesResponse.data);
+      setPredictedSales(predictedSalesResponse.data);
     } catch (err: unknown) {
-      console.error("Error fetching products:", err);
+      console.error("Error fetching data:", err);
       if (axios.isAxiosError(err) && err.response) {
-        setError(err.response.data.error || "Failed to load products.");
+        setError(err.response.data.error || "Failed to load data.");
       } else {
-        setError("Failed to load products.");
+        setError("Failed to load data.");
       }
     } finally {
       setIsLoading(false);
@@ -63,7 +91,7 @@ const ProductManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Handle form input changes
@@ -126,6 +154,24 @@ const ProductManagement: React.FC = () => {
         formData
       );
       setProducts((prev) => [...prev, response.data]);
+      // Initialize actualSales and predictedSales for the new product
+      setActualSales((prev) => [
+        ...prev,
+        {
+          productId: response.data.id,
+          productName: response.data.name,
+          salesCount: 0,
+        },
+      ]);
+      setPredictedSales((prev) => [
+        ...prev,
+        {
+          id: uuidv4(),
+          productId: response.data.id,
+          productName: response.data.name,
+          predictedSales: 0,
+        },
+      ]);
       closeAddModal();
     } catch (err: unknown) {
       console.error("Error adding product:", err);
@@ -152,6 +198,25 @@ const ProductManagement: React.FC = () => {
           prod.id === currentProduct.id ? response.data : prod
         )
       );
+
+      // Update actualSales if product name has changed
+      setActualSales((prev) =>
+        prev.map((sale) =>
+          sale.productId === currentProduct.id
+            ? { ...sale, productName: response.data.name }
+            : sale
+        )
+      );
+
+      // Update predictedSales if product name has changed
+      setPredictedSales((prev) =>
+        prev.map((prediction) =>
+          prediction.productId === currentProduct.id
+            ? { ...prediction, productName: response.data.name }
+            : prediction
+        )
+      );
+
       closeEditModal();
     } catch (err: unknown) {
       console.error("Error editing product:", err);
@@ -170,6 +235,10 @@ const ProductManagement: React.FC = () => {
     try {
       await axios.delete(`/api/admin/products/${id}`);
       setProducts((prev) => prev.filter((prod) => prod.id !== id));
+      setActualSales((prev) => prev.filter((sale) => sale.productId !== id));
+      setPredictedSales((prev) =>
+        prev.filter((prediction) => prediction.productId !== id)
+      );
     } catch (err: unknown) {
       console.error("Error deleting product:", err);
       if (axios.isAxiosError(err) && err.response) {
@@ -180,6 +249,48 @@ const ProductManagement: React.FC = () => {
     }
   };
 
+  // Prepare data for actual sales pie chart
+  const actualChartData = {
+    labels: actualSales.map((sale) => sale.productName),
+    datasets: [
+      {
+        label: "Actual Sales",
+        data: actualSales.map((sale) => sale.salesCount),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          // Add more colors if needed
+        ],
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  // Prepare data for predicted sales pie chart
+  const predictedChartData = {
+    labels: predictedSales.map((prediction) => prediction.productName),
+    datasets: [
+      {
+        label: "Predicted Sales",
+        data: predictedSales.map((prediction) => prediction.predictedSales),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          // Add more colors if needed
+        ],
+        hoverOffset: 4,
+      },
+    ],
+  };
+
   return (
     <>
       <Navbaradmin />
@@ -188,6 +299,34 @@ const ProductManagement: React.FC = () => {
           <h1 className="text-4xl font-bold mb-8 text-center">
             Product Management
           </h1>
+
+          {/* Statistics Section */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Sales Statistics
+            </h2>
+            {actualSales.length === 0 && predictedSales.length === 0 ? (
+              <p className="text-center">No sales data available.</p>
+            ) : (
+              <div className="flex flex-col md:flex-row justify-center items-center space-y-8 md:space-y-0 md:space-x-16">
+                {/* Actual Sales Pie Chart */}
+                <div className="w-full md:w-1/2">
+                  <h3 className="text-xl font-semibold mb-2 text-center">
+                    Actual Sales
+                  </h3>
+                  <Pie data={actualChartData} />
+                </div>
+
+                {/* Predicted Sales Pie Chart */}
+                <div className="w-full md:w-1/2">
+                  <h3 className="text-xl font-semibold mb-2 text-center">
+                    Predicted Sales
+                  </h3>
+                  <Pie data={predictedChartData} />
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-end mb-4">
             <button
@@ -623,3 +762,6 @@ const ProductManagement: React.FC = () => {
 };
 
 export default ProductManagement;
+
+// Utility function to generate UUID for predictedSales
+import { v4 as uuidv4 } from "uuid";

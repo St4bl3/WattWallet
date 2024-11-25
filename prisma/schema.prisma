@@ -1,4 +1,5 @@
 // schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -60,4 +61,11 @@ model Product {
 
   // Relations
   transactions Transaction[]
+}
+
+model SalesPrediction {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId      String   @db.ObjectId
+  productName    String
+  predictedSales Int
 }
