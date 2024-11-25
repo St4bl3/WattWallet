@@ -29,7 +29,6 @@ model Balance {
   userId                String        @unique
   creditBalance         Float         @default(0.0)
   energyBalance         Float         @default(0.0)
-  appliances            Appliance[]
   isBank                Boolean       @default(false) // If true, identifies as bank
 
   // Relations
@@ -44,7 +43,6 @@ model Appliance {
   isOn          Boolean  @default(false)
   energyBalance Float    @default(0.0)
   balanceId     String   @db.ObjectId
-  Balance       Balance  @relation(fields: [balanceId], references: [id])
 }
 
 model Product {

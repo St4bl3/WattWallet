@@ -1,7 +1,9 @@
 // app/api/balance/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getAuth } from "@clerk/nextjs/server";
+import { initializeUserData } from "../../../lib/initializeUserData"; // Adjust the path as necessary
 
 const prisma = new PrismaClient();
 
@@ -13,7 +15,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const balance = await prisma.balance.findUnique({
+    // Attempt to fetch the balance
+    let balance = await prisma.balance.findUnique({
       where: { userId },
       select: {
         creditBalance: true,
@@ -21,8 +24,29 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // If balance doesn't exist, initialize user data
     if (!balance) {
-      return NextResponse.json({ error: "Balance not found" }, { status: 404 });
+      console.log(
+        `Balance not found for user: ${userId}. Initializing user data.`
+      );
+      await initializeUserData(userId);
+
+      // Retry fetching the balance after initialization
+      balance = await prisma.balance.findUnique({
+        where: { userId },
+        select: {
+          creditBalance: true,
+          energyBalance: true,
+        },
+      });
+
+      // If balance is still not found, return an error
+      if (!balance) {
+        return NextResponse.json(
+          { error: "Failed to initialize balance." },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json(balance, { status: 200 });
