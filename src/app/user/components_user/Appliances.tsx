@@ -40,25 +40,24 @@ const Appliances: React.FC = () => {
           appliance.id === updatedAppliance.id ? updatedAppliance : appliance
         )
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error toggling appliance:", error);
-      alert(error.response?.data?.error || "Error toggling appliance");
+      if (axios.isAxiosError(error)) {
+        alert(error.response?.data?.error || "Error toggling appliance");
+      } else {
+        alert("Error toggling appliance");
+      }
     }
   };
 
   // Deduct energy tokens every 5 seconds for active appliances
   useEffect(() => {
     const interval = setInterval(async () => {
-      const activeAppliances = appliances.filter(
-        (appliance) => appliance.energyBalance > 0
-      );
-      for (let i = 0; i < activeAppliances.length; i++) {
-        try {
-          await axios.post("/api/appliances/deduct-token");
-        } catch (error: any) {
-          console.error("Error deducting energy token:", error);
-          // Optionally, notify the user or handle insufficient tokens
-        }
+      try {
+        await axios.post("/api/appliances/deduct-token");
+      } catch (error: unknown) {
+        console.error("Error deducting energy token:", error);
+        // Optionally, notify the user or handle insufficient tokens
       }
     }, 5000); // Every 5 seconds
 
