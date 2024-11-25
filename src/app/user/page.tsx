@@ -10,6 +10,7 @@ import SellTokensForm from "./components_user/SellTokensForm";
 import BuyCreditsForm from "./components_user/BuyCreditsForm";
 import Appliances from "./components_user/Appliances";
 import Navbaruser from "./components_user/Navbar-user";
+import { Footeruser } from "./components_user/footer-user";
 
 interface Balance {
   creditBalance: number;
@@ -156,6 +157,7 @@ const MainPage: React.FC = () => {
         )}
       </div>
       <Appliances />
+      <Footeruser />
     </>
   );
 };

@@ -6,6 +6,7 @@ import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import ProductCard from "./components-store/ProductCard";
 import Navbaruser from "../components_user/Navbar-user";
+import { Footeruser } from "../components_user/footer-user";
 
 interface Product {
   id: string;
@@ -106,6 +107,7 @@ const StorePage: React.FC = () => {
           </div>
         )}
       </div>
+      <Footeruser />
     </>
   );
 };

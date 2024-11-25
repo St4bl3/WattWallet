@@ -6,6 +6,7 @@ import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import TransactionList from "./components_transaction/TransactionList";
 import Navbaruser from "../components_user/Navbar-user";
+import { Footeruser } from "../components_user/footer-user";
 
 interface Transaction {
   id: string;
@@ -79,6 +80,7 @@ const TransactionsPage: React.FC = () => {
           <p>Please sign in to view your transactions.</p>
         )}
       </div>
+      <Footeruser />
     </>
   );
 };
