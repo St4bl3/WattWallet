@@ -78,13 +78,15 @@ const MintingControl: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl mb-8 p-6 border-2 border-gray-300 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Minting Control</h2>
-      <div className="flex items-center space-x-4 mb-4">
+    <div className="w-full max-w-6xl mb-12 p-8 border-2 border-gray-300 rounded-lg shadow-lg bg-white transition-transform duration-500 ease-in-out transform hover:scale-105">
+      <h2 className="text-3xl font-bold mb-6 text-center animate-fadeIn">
+        Minting Control
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="flex flex-col">
           <label
             htmlFor="credits"
-            className="text-sm font-medium text-gray-700"
+            className="mb-2 text-lg font-medium text-gray-700"
           >
             Credits to Mint Every 10 Seconds
           </label>
@@ -95,11 +97,14 @@ const MintingControl: React.FC = () => {
             min="1"
             value={credits}
             onChange={(e) => setCredits(parseInt(e.target.value))}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black transition-shadow duration-300"
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="tokens" className="text-sm font-medium text-gray-700">
+          <label
+            htmlFor="tokens"
+            className="mb-2 text-lg font-medium text-gray-700"
+          >
             Tokens to Mint Every 10 Seconds
           </label>
           <input
@@ -109,29 +114,35 @@ const MintingControl: React.FC = () => {
             min="1"
             value={tokens}
             onChange={(e) => setTokens(parseInt(e.target.value))}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            className="px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black transition-shadow duration-300"
           />
         </div>
       </div>
-      <div className="flex space-x-4">
+      <div className="flex justify-center space-x-6">
         {!isMinting ? (
           <button
             onClick={handleStartMinting}
-            className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors"
+            className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300 transform hover:scale-105"
           >
             Start Minting
           </button>
         ) : (
           <button
             onClick={handleStopMinting}
-            className="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors"
+            className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 transition-colors duration-300 transform hover:scale-105"
           >
             Stop Minting
           </button>
         )}
       </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-      {success && <p className="text-green-500 mt-4">{success}</p>}
+      {error && (
+        <p className="mt-6 text-center text-red-500 animate-pulse">{error}</p>
+      )}
+      {success && (
+        <p className="mt-6 text-center text-green-500 animate-pulse">
+          {success}
+        </p>
+      )}
     </div>
   );
 };

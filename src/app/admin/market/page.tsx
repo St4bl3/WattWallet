@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import Modal from "react-modal";
 import { Navbaradmin } from "../components_admin/Navbaradmin";
@@ -68,7 +68,7 @@ const ProductManagement: React.FC = () => {
 
   // Handle form input changes
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -118,7 +118,7 @@ const ProductManagement: React.FC = () => {
   };
 
   // Add New Product
-  const addProduct = async (e: React.FormEvent) => {
+  const addProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await axios.post<Product>(
@@ -138,7 +138,7 @@ const ProductManagement: React.FC = () => {
   };
 
   // Edit Existing Product
-  const editProduct = async (e: React.FormEvent) => {
+  const editProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentProduct) return;
 
@@ -183,369 +183,440 @@ const ProductManagement: React.FC = () => {
   return (
     <>
       <Navbaradmin />
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">Product Management</h1>
+      <div className="bg-white text-black min-h-screen mt-20">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold mb-8 text-center">
+            Product Management
+          </h1>
 
-        <button
-          onClick={openAddModal}
-          className="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Add New Product
-        </button>
-
-        {isLoading ? (
-          <p>Loading products...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : products.length === 0 ? (
-          <p>No products available.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border">Image</th>
-                  <th className="py-2 px-4 border">Name</th>
-                  <th className="py-2 px-4 border">Description</th>
-                  <th className="py-2 px-4 border">Price (Credits)</th>
-                  <th className="py-2 px-4 border">In Stock</th>
-                  <th className="py-2 px-4 border">Category</th>
-                  <th className="py-2 px-4 border">Brand</th>
-                  <th className="py-2 px-4 border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border">{product.name}</td>
-                    <td className="py-2 px-4 border">{product.description}</td>
-                    <td className="py-2 px-4 border">
-                      {product.price.toFixed(2)}
-                    </td>
-                    <td className="py-2 px-4 border">{product.inStock}</td>
-                    <td className="py-2 px-4 border">{product.category}</td>
-                    <td className="py-2 px-4 border">{product.brand}</td>
-                    <td className="py-2 px-4 border">
-                      <button
-                        onClick={() => openEditModal(product)}
-                        className="mr-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteProduct(product.id)}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={openAddModal}
+              className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+            >
+              Add New Product
+            </button>
           </div>
-        )}
 
-        {/* Add Product Modal */}
-        <Modal
-          isOpen={isAddModalOpen}
-          onRequestClose={closeAddModal}
-          contentLabel="Add New Product"
-          className="bg-white rounded-lg p-6 max-w-lg mx-auto mt-20 shadow-lg outline-none"
-          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50"
-        >
-          <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
-          <form onSubmit={addProduct}>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
+          {isLoading ? (
+            <p className="text-center">Loading products...</p>
+          ) : error ? (
+            <p className="text-red-500 text-center">{error}</p>
+          ) : products.length === 0 ? (
+            <p className="text-center">No products available.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 shadow-lg rounded-lg">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Image
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Price (Credits)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      In Stock
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Brand
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {products.map((product) => (
+                    <tr
+                      key={product.id}
+                      className="transition duration-300 ease-in-out hover:bg-gray-50"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded-md"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {product.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500 line-clamp-2">
+                          {product.description}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          ${product.price.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            product.inStock > 0
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {product.inStock > 0 ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {product.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          {product.brand}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => openEditModal(product)}
+                          className="mr-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(product.id)}
+                          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-300"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+          )}
 
-            <div className="mb-4">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium mb-1"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                required
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              ></textarea>
-            </div>
+          {/* Add Product Modal */}
+          <Modal
+            isOpen={isAddModalOpen}
+            onRequestClose={closeAddModal}
+            contentLabel="Add New Product"
+            className="bg-white rounded-lg p-8 max-w-2xl mx-auto mt-24 shadow-xl transition-transform duration-300 ease-in-out transform scale-100"
+            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+          >
+            <h2 className="text-2xl font-semibold mb-6">Add New Product</h2>
+            <form onSubmit={addProduct} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="price" className="block text-sm font-medium mb-1">
-                Price (Credits)
-              </label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  required
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                ></textarea>
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="inStock"
-                className="block text-sm font-medium mb-1"
-              >
-                In Stock
-              </label>
-              <input
-                type="number"
-                id="inStock"
-                name="inStock"
-                required
-                min="0"
-                value={formData.inStock}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="price"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Price (Credits)
+                </label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium mb-1"
-              >
-                Category
-              </label>
-              <input
-                type="text"
-                id="category"
-                name="category"
-                required
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="inStock"
+                  className="block text-sm font-medium mb-1"
+                >
+                  In Stock
+                </label>
+                <input
+                  type="number"
+                  id="inStock"
+                  name="inStock"
+                  required
+                  min="0"
+                  value={formData.inStock}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="brand" className="block text-sm font-medium mb-1">
-                Brand
-              </label>
-              <input
-                type="text"
-                id="brand"
-                name="brand"
-                required
-                value={formData.brand}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Category
+                </label>
+                <input
+                  type="text"
+                  id="category"
+                  name="category"
+                  required
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="imageUrl"
-                className="block text-sm font-medium mb-1"
-              >
-                Image URL
-              </label>
-              <input
-                type="url"
-                id="imageUrl"
-                name="imageUrl"
-                required
-                value={formData.imageUrl}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="brand"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Brand
+                </label>
+                <input
+                  type="text"
+                  id="brand"
+                  name="brand"
+                  required
+                  value={formData.brand}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={closeAddModal}
-                className="mr-4 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Add Product
-              </button>
-            </div>
-          </form>
-        </Modal>
+              <div>
+                <label
+                  htmlFor="imageUrl"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Image URL
+                </label>
+                <input
+                  type="url"
+                  id="imageUrl"
+                  name="imageUrl"
+                  required
+                  value={formData.imageUrl}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-        {/* Edit Product Modal */}
-        <Modal
-          isOpen={isEditModalOpen}
-          onRequestClose={closeEditModal}
-          contentLabel="Edit Product"
-          className="bg-white rounded-lg p-6 max-w-lg mx-auto mt-20 shadow-lg outline-none"
-          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50"
-        >
-          <h2 className="text-2xl font-semibold mb-4">Edit Product</h2>
-          <form onSubmit={editProduct}>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={closeAddModal}
+                  className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Add Product
+                </button>
+              </div>
+            </form>
+          </Modal>
 
-            <div className="mb-4">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium mb-1"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                required
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              ></textarea>
-            </div>
+          {/* Edit Product Modal */}
+          <Modal
+            isOpen={isEditModalOpen}
+            onRequestClose={closeEditModal}
+            contentLabel="Edit Product"
+            className="bg-white rounded-lg p-8 max-w-2xl mx-auto mt-24 shadow-xl transition-transform duration-300 ease-in-out transform scale-100"
+            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+          >
+            <h2 className="text-2xl font-semibold mb-6">Edit Product</h2>
+            <form onSubmit={editProduct} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="price" className="block text-sm font-medium mb-1">
-                Price (Credits)
-              </label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  required
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                ></textarea>
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="inStock"
-                className="block text-sm font-medium mb-1"
-              >
-                In Stock
-              </label>
-              <input
-                type="number"
-                id="inStock"
-                name="inStock"
-                required
-                min="0"
-                value={formData.inStock}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="price"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Price (Credits)
+                </label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium mb-1"
-              >
-                Category
-              </label>
-              <input
-                type="text"
-                id="category"
-                name="category"
-                required
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="inStock"
+                  className="block text-sm font-medium mb-1"
+                >
+                  In Stock
+                </label>
+                <input
+                  type="number"
+                  id="inStock"
+                  name="inStock"
+                  required
+                  min="0"
+                  value={formData.inStock}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="brand" className="block text-sm font-medium mb-1">
-                Brand
-              </label>
-              <input
-                type="text"
-                id="brand"
-                name="brand"
-                required
-                value={formData.brand}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Category
+                </label>
+                <input
+                  type="text"
+                  id="category"
+                  name="category"
+                  required
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="imageUrl"
-                className="block text-sm font-medium mb-1"
-              >
-                Image URL
-              </label>
-              <input
-                type="url"
-                id="imageUrl"
-                name="imageUrl"
-                required
-                value={formData.imageUrl}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
+              <div>
+                <label
+                  htmlFor="brand"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Brand
+                </label>
+                <input
+                  type="text"
+                  id="brand"
+                  name="brand"
+                  required
+                  value={formData.brand}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
 
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={closeEditModal}
-                className="mr-4 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Update Product
-              </button>
-            </div>
-          </form>
-        </Modal>
+              <div>
+                <label
+                  htmlFor="imageUrl"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Image URL
+                </label>
+                <input
+                  type="url"
+                  id="imageUrl"
+                  name="imageUrl"
+                  required
+                  value={formData.imageUrl}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-300"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Update Product
+                </button>
+              </div>
+            </form>
+          </Modal>
+        </div>
       </div>
     </>
   );

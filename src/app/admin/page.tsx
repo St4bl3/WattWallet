@@ -26,9 +26,13 @@ const AdminPage: React.FC = () => {
     return (
       <>
         <Navbaradmin />
-        <div className="flex flex-col items-center justify-center pt-24 bg-white text-black px-4 min-h-screen">
-          <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-          <p>Please sign in as the admin to access this page.</p>
+        <div className="flex flex-col items-center justify-center pt-24 bg-white text-black px-4 min-h-screen transition-opacity duration-500 ease-in-out mt-40">
+          <h1 className="text-4xl font-bold mb-6 animate-fadeIn">
+            Access Denied
+          </h1>
+          <p className="text-lg">
+            Please sign in as the admin to access this page.
+          </p>
         </div>
       </>
     );
@@ -38,9 +42,13 @@ const AdminPage: React.FC = () => {
     return (
       <>
         <Navbaradmin />
-        <div className="flex flex-col items-center justify-center pt-24 bg-white text-black px-4 min-h-screen">
-          <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-          <p>You do not have permission to view this page.</p>
+        <div className="flex flex-col items-center justify-center pt-24 bg-white text-black px-4 min-h-screen transition-opacity duration-500 ease-in-out">
+          <h1 className="text-4xl font-bold mb-6 animate-fadeIn">
+            Access Denied
+          </h1>
+          <p className="text-lg">
+            You do not have permission to view this page.
+          </p>
         </div>
       </>
     );
@@ -49,8 +57,10 @@ const AdminPage: React.FC = () => {
   return (
     <>
       <Navbaradmin />
-      <div className="flex flex-col items-center justify-start pt-24 bg-white text-black px-4 min-h-screen">
-        <h1 className="text-4xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex flex-col items-center justify-start pt-24 bg-white text-black px-4 min-h-screen space-y-12 transition-opacity duration-500 ease-in-out">
+        <h1 className="text-5xl font-extrabold animate-slideIn">
+          Admin Dashboard
+        </h1>
         <MintingControl />
         <UserList />
       </div>

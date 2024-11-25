@@ -9,7 +9,7 @@ const ModalProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   useEffect(() => {
-    // Check if the element exists before setting it
+    // Ensure the #__next element exists before setting it as the app element
     const appElement = document.querySelector("#__next");
     if (appElement) {
       Modal.setAppElement(appElement as HTMLElement);
