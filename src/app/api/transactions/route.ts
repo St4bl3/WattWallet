@@ -13,18 +13,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch transactions where the user is the sender
+    // Fetch transactions where the user is either sender or receiver
     const transactions = await prisma.transaction.findMany({
       where: {
-        senderId: userId,
+        OR: [{ senderId: userId }, { receiverId: userId }],
       },
       orderBy: {
-        // Since 'createdAt' was removed, use 'transactionId' or another field if necessary
-        transactionId: "desc",
+        transactionId: "desc", // Adjust ordering as needed
       },
       include: {
         product: true,
-        appliance: true,
+        sender: true,
+        receiver: true,
       },
     });
 

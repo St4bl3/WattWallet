@@ -5,20 +5,17 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import TransactionList from "./components_transaction/TransactionList";
-import { Navbaruser } from "../components_user/Navbar-user";
+import Navbaruser from "../components_user/Navbar-user";
 
 interface Transaction {
   id: string;
   transactionId: string;
   senderId: string;
   receiverId: string;
-  applianceId: string | null;
   productId: string | null;
   type: string;
-  amount?: number; // Optional if not used
-  createdAt?: string; // Optional if not using
+  amount: number;
   product?: Product;
-  appliance?: Appliance;
 }
 
 interface Product {
@@ -32,15 +29,6 @@ interface Product {
   ratings: number;
   reviews: number;
   imageUrl: string;
-}
-
-interface Appliance {
-  id: string;
-  userId: string;
-  name: string;
-  isOn: boolean;
-  energyBalance: number;
-  balanceId: string;
 }
 
 const TransactionsPage: React.FC = () => {

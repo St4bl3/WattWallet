@@ -9,13 +9,10 @@ interface Transaction {
   transactionId: string;
   senderId: string;
   receiverId: string;
-  applianceId: string | null;
   productId: string | null;
   type: string;
-  amount?: number;
-  createdAt?: string;
+  amount: number;
   product?: Product;
-  appliance?: Appliance;
 }
 
 interface Product {
@@ -31,15 +28,6 @@ interface Product {
   imageUrl: string;
 }
 
-interface Appliance {
-  id: string;
-  userId: string;
-  name: string;
-  isOn: boolean;
-  energyBalance: number;
-  balanceId: string;
-}
-
 interface TransactionListProps {
   transactions: Transaction[];
 }
@@ -47,8 +35,14 @@ interface TransactionListProps {
 const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
   const [activeTab, setActiveTab] = useState<string>("All");
 
-  // Define transaction types based on your application's logic
-  const categories = ["All", "Purchase", "ApplianceToggle", "EnergyToken"];
+  // Define transaction types
+  const categories = [
+    "All",
+    "Purchase",
+    "BuyCredits",
+    "BuyTokens",
+    "SellTokens",
+  ];
 
   const filteredTransactions =
     activeTab === "All"

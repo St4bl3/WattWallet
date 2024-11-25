@@ -8,13 +8,10 @@ interface Transaction {
   transactionId: string;
   senderId: string;
   receiverId: string;
-  applianceId: string | null;
   productId: string | null;
   type: string;
-  amount?: number;
-  createdAt?: string;
+  amount: number;
   product?: Product;
-  appliance?: Appliance;
 }
 
 interface Product {
@@ -30,24 +27,11 @@ interface Product {
   imageUrl: string;
 }
 
-interface Appliance {
-  id: string;
-  userId: string;
-  name: string;
-  isOn: boolean;
-  energyBalance: number;
-  balanceId: string;
-}
-
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
-  const formattedDate = transaction.createdAt
-    ? new Date(transaction.createdAt).toLocaleString()
-    : "N/A";
-
   return (
     <li className="mb-4 p-4 border border-gray-300 rounded-lg">
       <div className="flex justify-between items-center">
@@ -55,15 +39,19 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
           <p className="font-semibold">
             Transaction ID: {transaction.transactionId}
           </p>
-          <p className="text-sm text-gray-600">{formattedDate}</p>
+          {/* As createdAt is removed, omit the date or handle accordingly */}
         </div>
         <p
           className={`font-semibold ${
             transaction.type === "Purchase"
               ? "text-green-500"
-              : transaction.type === "ApplianceToggle"
+              : transaction.type === "BuyCredits"
               ? "text-blue-500"
-              : "text-yellow-500"
+              : transaction.type === "BuyTokens"
+              ? "text-yellow-500"
+              : transaction.type === "SellTokens"
+              ? "text-red-500"
+              : "text-gray-500"
           }`}
         >
           {transaction.type}
@@ -85,33 +73,40 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
               </p>
             </div>
           </div>
-        ) : transaction.type === "ApplianceToggle" && transaction.appliance ? (
+        ) : transaction.type === "BuyCredits" ? (
           <div>
-            <p className="font-semibold">
-              Appliance: {transaction.appliance.name}
-            </p>
+            <p className="font-semibold">Bought Credits</p>
             <p className="text-sm text-gray-600">
-              {transaction.appliance.isOn ? "Turned On" : "Turned Off"}
+              Amount: {transaction.amount} Credits
             </p>
           </div>
-        ) : transaction.type === "EnergyToken" ? (
+        ) : transaction.type === "BuyTokens" ? (
           <div>
-            <p className="font-semibold">Energy Tokens: {transaction.amount}</p>
+            <p className="font-semibold">Bought Energy Tokens</p>
+            <p className="text-sm text-gray-600">
+              Amount: {transaction.amount} Tokens
+            </p>
+          </div>
+        ) : transaction.type === "SellTokens" ? (
+          <div>
+            <p className="font-semibold">Sold Energy Tokens</p>
+            <p className="text-sm text-gray-600">
+              Amount: {transaction.amount} Tokens
+            </p>
           </div>
         ) : null}
       </div>
 
       <div className="mt-2 flex justify-between items-center">
         <p>
-          {transaction.amount !== undefined ? (
-            transaction.amount > 0 ? (
-              <span className="text-green-500">
-                +{transaction.amount} Credits
-              </span>
-            ) : (
-              <span className="text-red-500">{transaction.amount} Credits</span>
-            )
-          ) : null}
+          {transaction.amount > 0 ? (
+            <span className="text-green-500">
+              +{transaction.amount}{" "}
+              {transaction.type === "SellTokens" ? "Credits" : "Credits/Tokens"}
+            </span>
+          ) : (
+            <span className="text-red-500">{transaction.amount} Credits</span>
+          )}
         </p>
         <p className="text-sm text-gray-600">
           Sender ID: {transaction.senderId}

@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import ProductCard from "./components-store/ProductCard";
-import { Navbaruser } from "../components_user/Navbar-user";
+import Navbaruser from "../components_user/Navbar-user";
 
 interface Product {
   id: string;

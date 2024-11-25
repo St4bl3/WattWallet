@@ -5,7 +5,7 @@ import { getAuth } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
-const BANK_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Bank User ID
+const BANK_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Replace with your actual Bank user ID
 
 interface PurchaseBody {
   productId: string;
@@ -76,56 +76,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check again to prevent race conditions
-    const latestProduct = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
-    if (!latestProduct || latestProduct.inStock <= 0) {
-      return NextResponse.json(
-        { error: "Product is out of stock" },
-        { status: 400 }
-      );
-    }
-
-    const latestUserBalance = await prisma.balance.findUnique({
-      where: { userId },
-    });
-
-    if (!latestUserBalance || latestUserBalance.creditBalance < product.price) {
-      return NextResponse.json(
-        { error: "Insufficient credits" },
-        { status: 400 }
-      );
-    }
-
-    // Deduct credits from user
-    await prisma.balance.update({
-      where: { userId },
-      data: { creditBalance: { decrement: product.price } },
-    });
-
-    // Add credits to bank
-    await prisma.balance.update({
-      where: { userId: BANK_USER_ID },
-      data: { creditBalance: { increment: product.price } },
-    });
-
-    // Decrement product inStock
-    await prisma.product.update({
-      where: { id: productId },
-      data: { inStock: { decrement: 1 } },
-    });
-
-    // Record transaction between user and bank
-    await prisma.transaction.create({
+    // Perform the transaction atomically
+    await prisma.$transaction([
+      // Deduct credits from user
+      prisma.balance.update({
+        where: { userId },
+        data: { creditBalance: { decrement: product.price } },
+      }),
+      // Add credits to bank
+      prisma.balance.update({
+        where: { userId: BANK_USER_ID },
+        data: { creditBalance: { increment: product.price } },
+      }),
+      // Decrement product inStock
+      prisma.product.update({
+        where: { id: productId },
+        data: { inStock: { decrement: 1 } },
+      }),
+      // Create transaction
+      prisma.transaction.create({
         data: {
-            transactionId: crypto.randomUUID(),
-            senderId: userId,
-            receiverId: BANK_USER_ID,
-            productId: productId,
+          transactionId: crypto.randomUUID(),
+          senderId: userId,
+          receiverId: BANK_USER_ID,
+          type: "Purchase",
+          amount: product.price, // Amount in credits
+          productId: productId,
         },
-    });
+      }),
+    ]);
 
     return NextResponse.json(
       { message: "Product purchased successfully" },

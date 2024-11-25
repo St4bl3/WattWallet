@@ -15,7 +15,7 @@ model Transaction {
   receiverId    String
   productId     String?    @db.ObjectId
   type          String     // e.g., "Purchase", "BuyCredits", "BuyTokens", "SellTokens"
-  amount        Float
+  amount        Float      // Represents credits involved in the transaction
 
   // Relations
   sender        Balance    @relation("SenderTransactions", fields: [senderId], references: [userId])

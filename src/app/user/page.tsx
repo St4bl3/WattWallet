@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
-import { Navbaruser } from "./components_user/Navbar-user";
 import Modal from "./components_user/Modal";
 import BuyTokensForm from "./components_user/BuyTokensForm";
 import SellTokensForm from "./components_user/SellTokensForm";
 import BuyCreditsForm from "./components_user/BuyCreditsForm";
 import Appliances from "./components_user/Appliances";
+import Navbaruser from "./components_user/Navbar-user";
 
 interface Balance {
   creditBalance: number;

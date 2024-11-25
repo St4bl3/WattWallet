@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useClerk, useUser, UserButton } from "@clerk/clerk-react";
+import { useClerk, useUser, UserButton } from "@clerk/nextjs";
 import axios from "axios";
 
 interface Balance {
@@ -11,19 +11,18 @@ interface Balance {
   energyBalance: number;
 }
 
-export function Navbaruser(): JSX.Element {
+const Navbaruser: React.FC = () => {
   const { openSignIn } = useClerk();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   const [balance, setBalance] = useState<Balance | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Fetch balance from the API
   const fetchBalance = async () => {
-    if (isSignedIn && user?.id) {
+    if (isSignedIn) {
       try {
         setIsLoading(true);
-        const response = await axios.get("/api/balance", {
-          params: { userId: user.id },
-        });
+        const response = await axios.get("/api/balance");
         setBalance(response.data);
       } catch (error) {
         console.error("Error fetching balance:", error);
@@ -38,25 +37,28 @@ export function Navbaruser(): JSX.Element {
   useEffect(() => {
     fetchBalance(); // Initial fetch
 
-    // Poll every 5 seconds
+    // Poll every 3 seconds
     const interval = setInterval(() => {
       fetchBalance();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isSignedIn, user]);
+  }, [isSignedIn]);
 
   return (
     <nav
       className={`fixed top-0 left-0 w-full backdrop-blur-lg bg-white text-black transition-transform duration-300 ease-in-out border-b border-gray-300 z-50`}
     >
       <div className="flex items-center justify-between px-6 py-4">
+        {/* Logo */}
         <div className="flex items-center">
           <span className="text-3xl font-bold tracking-wide">WattWallet</span>
         </div>
+
+        {/* Navigation Links */}
         <ul className="flex items-center space-x-6 text-lg font-medium">
           <li>
-            <Link href="/user/" className="hover:underline">
+            <Link href="/user" className="hover:underline">
               Home
             </Link>
           </li>
@@ -71,17 +73,27 @@ export function Navbaruser(): JSX.Element {
             </Link>
           </li>
         </ul>
+
+        {/* Balance and User Controls */}
         <div className="flex items-center space-x-4">
-          {isSignedIn && balance && (
+          {isSignedIn && (
             <div className="flex space-x-4 items-center">
-              <div className="text-sm">
-                <span className="font-semibold">Credits:</span>{" "}
-                {balance.creditBalance}
-              </div>
-              <div className="text-sm">
-                <span className="font-semibold">Tokens:</span>{" "}
-                {balance.energyBalance}
-              </div>
+              {isLoading ? (
+                <div className="text-sm">Loading...</div>
+              ) : balance ? (
+                <>
+                  <div className="text-sm">
+                    <span className="font-semibold">Credits:</span>{" "}
+                    {balance.creditBalance}
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-semibold">Tokens:</span>{" "}
+                    {balance.energyBalance}
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm">No Balance Available</div>
+              )}
             </div>
           )}
           {isSignedIn ? (
@@ -98,4 +110,6 @@ export function Navbaruser(): JSX.Element {
       </div>
     </nav>
   );
-}
+};
+
+export default Navbaruser;

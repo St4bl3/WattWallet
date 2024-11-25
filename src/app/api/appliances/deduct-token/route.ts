@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
         transactionId: crypto.randomUUID(), // Assuming this generates a SHA256 hash
         senderId: userId,
         receiverId: "system", // Replace with actual system identifier if available
+        type: "DEDUCT", // Replace with the appropriate transaction type
+        amount: 1, // Assuming the amount deducted is 1 energy token
       },
     });
 
