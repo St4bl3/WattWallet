@@ -23,7 +23,7 @@ SENDER_ID = "system"
 def generate_user_ids(n):
     return [f"user_{i}" for i in range(1, n + 1)]
 
-RECEIVER_IDS = generate_user_ids(50)  # Generate 50 random users
+RECEIVER_IDS = generate_user_ids(100)  # Generate 100 random users
 
 def main():
     # Connect to MongoDB
@@ -31,8 +31,8 @@ def main():
     db = client[DATABASE_NAME]
 
     # Fetch all products
-    Product = db["Product"]
-    products = list(Product.find({}))
+    products_collection = db["Product"]
+    products = list(products_collection.find({}))
 
     if not products:
         print("No products found in the database. Please ensure products are added first.")
@@ -45,7 +45,7 @@ def main():
     # Generate 500 synthetic 'Purchase' transactions
     transactions_collection = db["Transaction"]
 
-    synthetic_transactions = []
+    synthetic_transactions_initial = []
     for _ in range(500):
         product_id = random.choice(product_ids)
         transaction = {
@@ -56,14 +56,35 @@ def main():
             "type": "Purchase",
             "amount": product_prices[str(product_id)],
         }
-        synthetic_transactions.append(transaction)
+        synthetic_transactions_initial.append(transaction)
 
-    # Insert synthetic transactions into the database
-    if synthetic_transactions:
-        transactions_collection.insert_many(synthetic_transactions)
-        print(f"Inserted {len(synthetic_transactions)} synthetic 'Purchase' transactions.")
+    # Insert initial 500 synthetic transactions
+    if synthetic_transactions_initial:
+        transactions_collection.insert_many(synthetic_transactions_initial)
+        print(f"Inserted {len(synthetic_transactions_initial)} synthetic 'Purchase' transactions (initial 500).")
     else:
-        print("No synthetic transactions to insert.")
+        print("No synthetic transactions to insert (initial 500).")
+
+    # Generate 100 actual 'Purchase' transactions for accuracy comparison
+    synthetic_transactions_actual = []
+    for _ in range(100):
+        product_id = random.choice(product_ids)
+        transaction = {
+            "transactionId": str(uuid.uuid4()),
+            "senderId": SENDER_ID,
+            "receiverId": random.choice(RECEIVER_IDS),
+            "productId": product_id,
+            "type": "Purchase",
+            "amount": product_prices[str(product_id)],
+        }
+        synthetic_transactions_actual.append(transaction)
+
+    # Insert actual 100 synthetic transactions
+    if synthetic_transactions_actual:
+        transactions_collection.insert_many(synthetic_transactions_actual)
+        print(f"Inserted {len(synthetic_transactions_actual)} synthetic 'Purchase' transactions (actual 100).")
+    else:
+        print("No synthetic transactions to insert (actual 100).")
 
     client.close()
 
