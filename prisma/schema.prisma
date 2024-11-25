@@ -14,44 +14,50 @@ model Transaction {
   senderId      String
   receiverId    String
   productId     String?    @db.ObjectId
-  type          TransactionType
+  type          String     // e.g., "Purchase", "BuyCredits", "BuyTokens", "SellTokens"
   amount        Float
 
-  // Define relations
+  // Relations
+  sender        Balance    @relation("SenderTransactions", fields: [senderId], references: [userId])
+  receiver      Balance    @relation("ReceiverTransactions", fields: [receiverId], references: [userId])
   product       Product?   @relation(fields: [productId], references: [id])
 }
 
 model Balance {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String       @unique
-  creditBalance Float        @default(0.0)
-  energyBalance Float        @default(0.0)
-  isBank        Boolean      @default(false) // If true, identifies as bank
+  id                    String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String        @unique
+  creditBalance         Float         @default(0.0)
+  energyBalance         Float         @default(0.0)
+  appliances            Appliance[]
+  isBank                Boolean       @default(false) // If true, identifies as bank
 
-  // Define relations
-  transactions   Transaction[] @relation("SenderTransactions", fields: [userId], references: [senderId])
-  receivedTransactions Transaction[] @relation("ReceiverTransactions", fields: [userId], references: [receiverId])
+  // Relations
+  transactions           Transaction[] @relation("SenderTransactions")
+  receivedTransactions   Transaction[] @relation("ReceiverTransactions")
+}
+
+model Appliance {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  name          String
+  isOn          Boolean  @default(false)
+  energyBalance Float    @default(0.0)
+  balanceId     String   @db.ObjectId
+  Balance       Balance  @relation(fields: [balanceId], references: [id])
 }
 
 model Product {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
-  price       Float
+  price       Float         // Cost in credits
   inStock     Int
-  category    String
-  brand       String
-  ratings     Float
-  reviews     Int
-  imageUrl    String
+  category    String        // Category of the product
+  brand       String        // Brand of the product
+  ratings     Float         // Average ratings
+  reviews     Int           // Number of reviews
+  imageUrl    String        // URL to the product image
 
-  // Define inverse relation
+  // Relations
   transactions Transaction[]
-}
-
-enum TransactionType {
-  Purchase
-  BuyCredits
-  BuyTokens
-  SellTokens
 }
