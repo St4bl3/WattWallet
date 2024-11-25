@@ -9,12 +9,16 @@ datasource db {
 }
 
 model Transaction {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  transactionId String   @unique
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId String     @unique
   senderId      String
   receiverId    String
-  applianceId   String?  @db.ObjectId
-  createdAt     DateTime @default(now())
+  applianceId   String?    @db.ObjectId
+  productId     String?    @db.ObjectId
+
+  // Define relations
+  product       Product?   @relation(fields: [productId], references: [id])
+  appliance     Appliance? @relation(fields: [applianceId], references: [id])
 }
 
 model Balance {
@@ -34,18 +38,23 @@ model Appliance {
   energyBalance Float    @default(0.0)
   balanceId     String   @db.ObjectId
   Balance       Balance  @relation(fields: [balanceId], references: [id])
+
+  // Define inverse relation
+  transactions Transaction[]
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
-  price       Float    // Cost in credits
+  price       Float
   inStock     Int
-  category    String   // Category of the product
-  brand       String   // Brand of the product
-  ratings     Float    // Average ratings
-  reviews     Int      // Number of reviews
-  imageUrl    String   // URL to the product image
-  createdAt   DateTime @default(now())
+  category    String
+  brand       String
+  ratings     Float
+  reviews     Int
+  imageUrl    String
+
+  // Define inverse relation
+  transactions Transaction[]
 }

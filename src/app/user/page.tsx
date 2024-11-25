@@ -1,163 +1,112 @@
-// components/MainPage.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
+import ProductCard from "./store/components-store/ProductCard";
 import { Navbaruser } from "./components_user/Navbar-user";
-import Modal from "./components_user/Modal";
-import BuyTokensForm from "./components_user/BuyTokensForm";
-import SellTokensForm from "./components_user/SellTokensForm";
-import BuyCreditsForm from "./components_user/BuyCreditsForm";
-import Appliances from "./components_user/Appliances";
 
-interface Balance {
-  creditBalance: number;
-  energyBalance: number;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  inStock: number;
+  category: string;
+  brand: string;
+  ratings: number;
+  reviews: number;
+  imageUrl: string;
+  createdAt: string;
 }
 
-const MainPage: React.FC = () => {
+const StorePage: React.FC = () => {
   const { isSignedIn, user } = useUser();
-  const [balance, setBalance] = useState<Balance | null>(null);
-  const [isBuyTokensOpen, setIsBuyTokensOpen] = useState<boolean>(false);
-  const [isSellTokensOpen, setIsSellTokensOpen] = useState<boolean>(false);
-  const [isBuyCreditsOpen, setIsBuyCreditsOpen] = useState<boolean>(false);
+  const userId = user?.id || "";
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [isPurchasing, setIsPurchasing] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
-  const fetchBalance = async () => {
-    if (isSignedIn && user?.id) {
-      try {
-        const response = await axios.get("/api/balance", {
-          params: { userId: user.id },
-        });
-        setBalance(response.data);
-      } catch (error) {
-        console.error("Error fetching balance:", error);
-      }
+  // Fetch products from the API
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get<Product[]>("/api/products");
+      setProducts(response.data);
+    } catch (err: unknown) {
+      console.error("Error fetching products:", err);
+      setError("Failed to load products. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBalance();
-  }, [isSignedIn, user]);
+    fetchProducts();
 
-  const handleBuyTokens = async (amount: number) => {
-    try {
-      const response = await axios.post("/api/buy-tokens", {
-        userId: user?.id,
-        amount,
-      });
-      setBalance(response.data);
-    } catch (error: unknown) {
-      console.error("Error buying tokens:", error);
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.error || "Error buying tokens");
-      } else {
-        alert("Error buying tokens");
-      }
+    // Poll every 10 seconds to refresh products
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePurchase = async (productId: string) => {
+    if (!isSignedIn || !userId) {
+      alert("Please sign in to purchase products.");
+      return;
     }
-  };
 
-  const handleSellTokens = async (amount: number) => {
+    setIsPurchasing((prev) => ({ ...prev, [productId]: true }));
     try {
-      const response = await axios.post("/api/sell-tokens", {
-        userId: user?.id,
-        amount,
+      const response = await axios.post("/api/store/purchase", {
+        productId,
       });
-      setBalance(response.data);
-    } catch (error: unknown) {
-      console.error("Error selling tokens:", error);
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.error || "Error selling tokens");
-      } else {
-        alert("Error selling tokens");
-      }
-    }
-  };
 
-  const handleBuyCredits = async (amount: number) => {
-    try {
-      const response = await axios.post("/api/buy-credits", {
-        userId: user?.id,
-        amount,
-      });
-      setBalance(response.data);
-    } catch (error: unknown) {
-      console.error("Error buying credits:", error);
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.error || "Error buying credits");
-      } else {
-        alert("Error buying credits");
+      if (response.status === 200) {
+        alert("Product purchased successfully!");
+        fetchProducts(); // Refresh product list
       }
+    } catch (err: unknown) {
+      console.error("Error purchasing product:", err);
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.error
+          ? err.response.data.error
+          : "Failed to purchase product.";
+      alert(message);
+    } finally {
+      setIsPurchasing((prev) => ({ ...prev, [productId]: false }));
     }
   };
 
   return (
     <>
       <Navbaruser />
-      <div className="flex flex-col items-center justify-center min-h-screen pt-24 bg-white text-black px-4">
-        <h1 className="text-5xl font-bold mb-8">Welcome to WattWallet</h1>
-        <div className="flex space-x-6">
-          <button
-            className="w-48 h-20 bg-black text-white text-xl rounded-lg hover:bg-gray-800 transition"
-            onClick={() => setIsBuyTokensOpen(true)}
-          >
-            Buy Tokens
-          </button>
-          <button
-            className="w-48 h-20 bg-black text-white text-xl rounded-lg hover:bg-gray-800 transition"
-            onClick={() => setIsSellTokensOpen(true)}
-          >
-            Sell Tokens
-          </button>
-          <button
-            className="w-48 h-20 bg-black text-white text-xl rounded-lg hover:bg-gray-800 transition"
-            onClick={() => setIsBuyCreditsOpen(true)}
-          >
-            Buy Credits
-          </button>
-        </div>
-
-        {/* Buy Tokens Modal */}
-        {isBuyTokensOpen && (
-          <Modal onClose={() => setIsBuyTokensOpen(false)}>
-            <BuyTokensForm
-              currentBalance={balance?.creditBalance || 0}
-              onSubmit={(amount) => {
-                handleBuyTokens(amount);
-                setIsBuyTokensOpen(false);
-              }}
-            />
-          </Modal>
-        )}
-
-        {/* Sell Tokens Modal */}
-        {isSellTokensOpen && (
-          <Modal onClose={() => setIsSellTokensOpen(false)}>
-            <SellTokensForm
-              currentBalance={balance?.energyBalance || 0}
-              onSubmit={(amount) => {
-                handleSellTokens(amount);
-                setIsSellTokensOpen(false);
-              }}
-            />
-          </Modal>
-        )}
-
-        {/* Buy Credits Modal */}
-        {isBuyCreditsOpen && (
-          <Modal onClose={() => setIsBuyCreditsOpen(false)}>
-            <BuyCreditsForm
-              onSubmit={(amount) => {
-                handleBuyCredits(amount);
-                setIsBuyCreditsOpen(false);
-              }}
-            />
-          </Modal>
+      <div className="flex flex-col items-center justify-start pt-24 bg-white text-black px-4 min-h-screen">
+        <h1 className="text-5xl font-bold mb-12">Store</h1>
+        {isLoading ? (
+          <p>Loading products...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onBuy={() => handlePurchase(product.id)}
+                isPurchasing={isPurchasing[product.id] || false}
+              />
+            ))}
+          </div>
         )}
       </div>
-      <Appliances />
     </>
   );
 };
 
-export default MainPage;
+export default StorePage;
