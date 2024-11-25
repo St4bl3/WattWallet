@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import ModalProvider from "../components/ModalProvider";
 import "./globals.css";
+
 import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
@@ -16,7 +18,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="flex flex-col min-h-screen">
-          <main className="flex-grow">{children}</main>
+          <ModalProvider>
+            <main className="flex-grow">{children}</main>
+          </ModalProvider>
         </body>
       </html>
     </ClerkProvider>
