@@ -63,6 +63,11 @@ const Navbaruser: React.FC = () => {
             </Link>
           </li>
           <li>
+            <Link href="/" className="hover:underline">
+              Back to Landing
+            </Link>
+          </li>
+          <li>
             <Link href="/user/store" className="hover:underline">
               Store
             </Link>

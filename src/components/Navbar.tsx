@@ -42,7 +42,7 @@ export function Navbar(): JSX.Element {
         </div>
         <ul className="flex items-center space-x-8 text-lg font-medium">
           <li>
-            <Link href="/home" className="hover:underline text-black">
+            <Link href="/" className="hover:underline text-black">
               Home
             </Link>
           </li>

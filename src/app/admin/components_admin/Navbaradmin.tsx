@@ -47,6 +47,12 @@ export function Navbaradmin(): JSX.Element {
             </Link>
           </li>
           <li>
+            <Link href="/" className="hover:underline text-black">
+              Back to Landing
+            </Link>
+          </li>
+
+          <li>
             <Link href="/admin/market" className="hover:underline text-black">
               MarketPlace
             </Link>

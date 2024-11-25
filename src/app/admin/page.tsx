@@ -7,6 +7,7 @@ import { useUser } from "@clerk/nextjs";
 import MintingControl from "../admin/components_admin/MintingControl";
 import UserList from "../admin/components_admin/UserList";
 import { Navbaradmin } from "./components_admin/Navbaradmin";
+import { FooterAdmin } from "./components_admin/footeradmin";
 
 const ADMIN_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Admin's User ID
 
@@ -64,6 +65,7 @@ const AdminPage: React.FC = () => {
         <MintingControl />
         <UserList />
       </div>
+      <FooterAdmin />
     </>
   );
 };
