@@ -56,7 +56,7 @@ export function Navbaruser(): JSX.Element {
         </div>
         <ul className="flex items-center space-x-6 text-lg font-medium">
           <li>
-            <Link href="/user" className="hover:underline">
+            <Link href="/user/" className="hover:underline">
               Home
             </Link>
           </li>

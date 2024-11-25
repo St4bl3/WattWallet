@@ -13,12 +13,12 @@ model Transaction {
   transactionId String     @unique
   senderId      String
   receiverId    String
-  applianceId   String?    @db.ObjectId
   productId     String?    @db.ObjectId
+  type          TransactionType
+  amount        Float
 
   // Define relations
   product       Product?   @relation(fields: [productId], references: [id])
-  appliance     Appliance? @relation(fields: [applianceId], references: [id])
 }
 
 model Balance {
@@ -26,25 +26,15 @@ model Balance {
   userId        String       @unique
   creditBalance Float        @default(0.0)
   energyBalance Float        @default(0.0)
-  appliances    Appliance[]
   isBank        Boolean      @default(false) // If true, identifies as bank
-}
 
-model Appliance {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String
-  name          String
-  isOn          Boolean  @default(false)
-  energyBalance Float    @default(0.0)
-  balanceId     String   @db.ObjectId
-  Balance       Balance  @relation(fields: [balanceId], references: [id])
-
-  // Define inverse relation
-  transactions Transaction[]
+  // Define relations
+  transactions   Transaction[] @relation("SenderTransactions", fields: [userId], references: [senderId])
+  receivedTransactions Transaction[] @relation("ReceiverTransactions", fields: [userId], references: [receiverId])
 }
 
 model Product {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
   price       Float
@@ -57,4 +47,11 @@ model Product {
 
   // Define inverse relation
   transactions Transaction[]
+}
+
+enum TransactionType {
+  Purchase
+  BuyCredits
+  BuyTokens
+  SellTokens
 }
