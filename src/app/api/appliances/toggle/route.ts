@@ -5,6 +5,10 @@ import { getAuth } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
+interface ToggleApplianceBody {
+  applianceId: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -13,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body: ToggleApplianceBody = await request.json();
     const { applianceId } = body;
 
     if (!applianceId) {
@@ -35,85 +39,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isCurrentlyOn = appliance.energyBalance > 0;
-    let updatedAppliance;
+    // Toggle the energyBalance (0 -> 1, 1 -> 0)
+    const newEnergyBalance = appliance.energyBalance > 0 ? 0 : 1;
 
-    if (!isCurrentlyOn) {
-      // Turning appliance on
-      // Check if user has at least 1 energy token
-      const userBalance = await prisma.balance.findUnique({
-        where: { userId },
-      });
+    const updatedAppliance = await prisma.appliance.update({
+      where: { id: applianceId },
+      data: { energyBalance: newEnergyBalance },
+    });
 
-      if (!userBalance) {
-        return NextResponse.json(
-          { error: "User balance not found" },
-          { status: 404 }
-        );
-      }
-
-      if (userBalance.energyBalance < 1) {
-        return NextResponse.json(
-          { error: "Insufficient energy tokens to turn on appliance" },
-          { status: 400 }
-        );
-      }
-
-      // Deduct 1 energy token from user
-      await prisma.balance.update({
-        where: { userId },
-        data: { energyBalance: { decrement: 1 } },
-      });
-
-      // Add 1 energy token to appliance
-      await prisma.appliance.update({
-        where: { id: applianceId },
-        data: { energyBalance: { increment: 1 } },
-      });
-
-      // Record transaction from user to appliance
-      await prisma.transaction.create({
-        data: {
-          transactionId: crypto.randomUUID(),
-          senderId: userId,
-          receiverId: applianceId, // Assuming applianceId can be a receiver
-          applianceId: applianceId,
-          createdAt: new Date(),
-        },
-      });
-
-      // Update appliance state
-      updatedAppliance = await prisma.appliance.findUnique({
-        where: { id: applianceId },
-        select: { id: true, name: true, energyBalance: true },
-      });
-    } else {
-      // Turning appliance off
-      // Deduct 1 energy token from appliance
-      await prisma.appliance.update({
-        where: { id: applianceId },
-        data: { energyBalance: { decrement: 1 } },
-      });
-
-      // No tokens are added back to the user or the bank in this scenario
-      // Optionally, handle token refund or other logic
-
-      // Record transaction if necessary
-
-      // Update appliance state
-      updatedAppliance = await prisma.appliance.findUnique({
-        where: { id: applianceId },
-        select: { id: true, name: true, energyBalance: true },
-      });
-    }
-
-    return NextResponse.json(
-      {
-        message: "Appliance toggled successfully",
-        appliance: updatedAppliance,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(updatedAppliance);
   } catch (error) {
     console.error("Error toggling appliance:", error);
     return NextResponse.json(

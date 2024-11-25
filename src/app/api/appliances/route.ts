@@ -40,7 +40,9 @@ export async function GET(request: NextRequest) {
             userId,
             creditBalance: 200, // Initial credits as per user instructions
             energyBalance: 100, // Initial energy tokens (adjust as needed)
-            appliances: { create: [] },
+            appliances: {
+              create: [],
+            },
             isBank: false,
           },
         });

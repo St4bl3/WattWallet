@@ -40,13 +40,9 @@ const Appliances: React.FC = () => {
           appliance.id === updatedAppliance.id ? updatedAppliance : appliance
         )
       );
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Error toggling appliance:", error);
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.error || "Error toggling appliance");
-      } else {
-        alert("Error toggling appliance");
-      }
+      alert(error.response?.data?.error || "Error toggling appliance");
     }
   };
 
@@ -56,16 +52,11 @@ const Appliances: React.FC = () => {
       const activeAppliances = appliances.filter(
         (appliance) => appliance.energyBalance > 0
       );
-      const activeCount = activeAppliances.length;
-      if (activeCount > 0) {
+      for (let i = 0; i < activeAppliances.length; i++) {
         try {
-          await axios.post("/api/appliances/deduct-token", {
-            count: activeCount,
-          });
-          // Optionally, refetch appliances or balance here
-          fetchAppliances();
-        } catch (error: unknown) {
-          console.error("Error deducting energy tokens:", error);
+          await axios.post("/api/appliances/deduct-token");
+        } catch (error: any) {
+          console.error("Error deducting energy token:", error);
           // Optionally, notify the user or handle insufficient tokens
         }
       }
