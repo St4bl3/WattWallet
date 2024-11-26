@@ -23,10 +23,10 @@ interface UpdateProductBody {
 // The route handler for the PUT request
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params; // Accessing params correctly
+    const { id } = params; // Accessing params directly
     const { userId: authenticatedUserId } = getAuth(request);
 
     // Authorization: Only admin can update products
