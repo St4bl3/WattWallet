@@ -11,7 +11,7 @@ const ADMIN_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Replace with your a
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const { userId: authenticatedUserId } = getAuth(request);
@@ -21,7 +21,8 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const productId = params.id; // Access the dynamic route parameter directly from params
+    // Extract the product ID from the context.params
+    const { id: productId } = context.params;
 
     if (!productId) {
       return NextResponse.json(
