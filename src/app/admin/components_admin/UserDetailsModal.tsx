@@ -121,7 +121,9 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800">Transactions</h3>
             {userDetails.transactions.length > 0 ? (
-              <div className="overflow-x-auto">
+              <div className="overflow-y-auto max-h-96">
+                {" "}
+                {/* Make the transactions scrollable */}
                 <table className="min-w-full border-collapse bg-white rounded-lg shadow-lg">
                   <thead className="bg-gray-100 text-gray-600">
                     <tr>
