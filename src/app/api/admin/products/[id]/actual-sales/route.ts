@@ -9,20 +9,18 @@ const prisma = new PrismaClient();
 // Define Admin User ID
 const ADMIN_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Replace with your actual admin user ID
 
-export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
+    // Extract the product ID from the URL directly
+    const { pathname } = new URL(request.url);
+    const productId = pathname.split("/")[5]; // [id] should be the 5th segment
+
     const { userId: authenticatedUserId } = getAuth(request);
 
     // Authorization: Only admin can access actual sales
     if (authenticatedUserId !== ADMIN_USER_ID) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // Extract the product ID from the context.params
-    const { id: productId } = context.params;
 
     if (!productId) {
       return NextResponse.json(
