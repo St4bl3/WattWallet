@@ -22,15 +22,16 @@ const Navbaruser: React.FC = () => {
         {/* Navigation Links */}
         <ul className="flex items-center space-x-6 text-lg font-medium">
           <li>
-            <Link href="/user" className="hover:underline">
-              Home
-            </Link>
-          </li>
-          <li>
             <Link href="/" className="hover:underline">
               Back to Landing
             </Link>
           </li>
+          <li>
+            <Link href="/user" className="hover:underline">
+              Home
+            </Link>
+          </li>
+
           <li>
             <Link href="/user/store" className="hover:underline">
               Store

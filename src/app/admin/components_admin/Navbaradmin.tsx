@@ -42,13 +42,13 @@ export function Navbaradmin(): JSX.Element {
         </div>
         <ul className="flex items-center space-x-8 text-lg font-medium">
           <li>
-            <Link href="/admin" className="hover:underline text-black">
-              Home
+            <Link href="/" className="hover:underline text-black">
+              Back to Landing
             </Link>
           </li>
           <li>
-            <Link href="/" className="hover:underline text-black">
-              Back to Landing
+            <Link href="/admin" className="hover:underline text-black">
+              Home
             </Link>
           </li>
 
