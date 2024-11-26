@@ -20,12 +20,13 @@ interface UpdateProductBody {
   imageUrl?: string;
 }
 
+// The route handler for the PUT request
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    const { id } = params; // Destructure the 'id' from params
     const { userId: authenticatedUserId } = getAuth(request);
 
     // Authorization: Only admin can update products
@@ -46,12 +47,9 @@ export async function PUT(
       );
     }
 
-    // Convert the ID to ObjectId if necessary
-    const productId = id;
-
     // Update the product
     const updatedProduct = await prisma.product.update({
-      where: { id: productId }, // Use ObjectId for the query
+      where: { id }, // Use the 'id' directly as a string (MongoDB ObjectId is a string)
       data: {
         name: body.name,
         description: body.description,
