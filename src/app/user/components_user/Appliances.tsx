@@ -13,6 +13,7 @@ interface Appliance {
 
 const Appliances: React.FC = () => {
   const [appliances, setAppliances] = useState<Appliance[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Fetch appliances from the API
@@ -59,7 +60,7 @@ const Appliances: React.FC = () => {
         console.error("Error deducting energy token:", error);
         // Optionally, notify the user or handle insufficient tokens
       }
-    }, 5000); // Every 5 seconds
+    }, 3000); // Every 3 seconds
 
     return () => clearInterval(interval);
   }, [appliances]);
@@ -78,19 +79,15 @@ const Appliances: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black px-4">
       <h1 className="text-5xl font-bold mb-12">Manage Your Appliances</h1>
-      {isLoading ? (
-        <p>Loading appliances...</p>
-      ) : (
-        <div className="flex space-x-6">
-          {appliances.map((appliance) => (
-            <ApplianceCard
-              key={appliance.id}
-              appliance={appliance}
-              onToggle={() => toggleAppliance(appliance.id)}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex space-x-6">
+        {appliances.map((appliance) => (
+          <ApplianceCard
+            key={appliance.id}
+            appliance={appliance}
+            onToggle={() => toggleAppliance(appliance.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

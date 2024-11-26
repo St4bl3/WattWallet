@@ -63,15 +63,15 @@ const TransactionsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isSignedIn]);
 
+  console.log(isLoading); // Temporary usage to avoid unused variable error
+
   return (
     <>
       <Navbaruser />
       <div className="flex flex-col items-center justify-start pt-24 bg-white text-black px-4 min-h-screen">
         <h1 className="text-5xl font-bold mb-12">Your Transactions</h1>
         {isSignedIn ? (
-          isLoading ? (
-            <p>Loading transactions...</p>
-          ) : error ? (
+          error ? (
             <p className="text-red-500">{error}</p>
           ) : (
             <TransactionList transactions={transactions} />

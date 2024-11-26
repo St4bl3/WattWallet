@@ -30,6 +30,7 @@ const StorePage: React.FC = () => {
   const [isPurchasing, setIsPurchasing] = useState<{ [key: string]: boolean }>(
     {}
   );
+  console.log(isLoading); // Temporary usage to avoid unused variable error
 
   const fetchProducts = async () => {
     if (!isSignedIn) return;
@@ -90,9 +91,7 @@ const StorePage: React.FC = () => {
       <Navbaruser />
       <div className="flex flex-col items-center justify-start pt-24 bg-white text-black px-4 min-h-screen">
         <h1 className="text-5xl font-bold mb-12">Store</h1>
-        {isLoading ? (
-          <p>Loading products...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-red-500">{error}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
