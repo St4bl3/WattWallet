@@ -46,9 +46,12 @@ export async function PUT(
       );
     }
 
+    // Convert the ID to ObjectId if necessary
+    const productId = id;
+
     // Update the product
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { id: productId }, // Use ObjectId for the query
       data: {
         name: body.name,
         description: body.description,
@@ -63,44 +66,6 @@ export async function PUT(
     return NextResponse.json(updatedProduct, { status: 200 });
   } catch (error: unknown) {
     console.error("Error updating product:", error);
-    if ((error as { code?: string }).code === "P2025") {
-      // Prisma error for not found
-      return NextResponse.json(
-        { error: "Product not found." },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Internal Server Error." },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { id } = params;
-    const { userId: authenticatedUserId } = getAuth(request);
-
-    // Authorization: Only admin can delete products
-    if (authenticatedUserId !== ADMIN_USER_ID) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Delete the product
-    await prisma.product.delete({
-      where: { id },
-    });
-
-    return NextResponse.json(
-      { message: "Product deleted successfully." },
-      { status: 200 }
-    );
-  } catch (error: unknown) {
-    console.error("Error deleting product:", error);
     if ((error as { code?: string }).code === "P2025") {
       // Prisma error for not found
       return NextResponse.json(
