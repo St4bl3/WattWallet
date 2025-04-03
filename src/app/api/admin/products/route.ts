@@ -7,7 +7,7 @@ import { PrismaClient, Product } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Define Admin User ID
-const ADMIN_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Replace with your actual admin user ID
+const ADMIN_USER_ID = "user_2pJCPbHT8T85lFtUPKIMElAMpu8"; // Replace with your actual admin user ID
 
 // Type for POST request body
 interface CreateProductBody {
