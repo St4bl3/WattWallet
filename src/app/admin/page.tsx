@@ -9,7 +9,7 @@ import UserList from "../admin/components_admin/UserList";
 import { Navbaradmin } from "./components_admin/Navbaradmin";
 import { FooterAdmin } from "./components_admin/footeradmin";
 
-const ADMIN_USER_ID = "user_2pKg9sDw4aGoiVfvwWfquJDWK5C"; // Admin's User ID
+const ADMIN_USER_ID = "user_2pJCPbHT8T85lFtUPKIMElAMpu8"; // Admin's User ID
 
 const AdminPage: React.FC = () => {
   const { isSignedIn, user } = useUser();
